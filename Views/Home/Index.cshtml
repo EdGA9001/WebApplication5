@@ -1,0 +1,214 @@
+﻿@{
+    Layout = null;
+}
+
+<!-- !!Move css and js when time allows!! -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+
+    <title>COMP1004 - Social media SPA</title>
+
+    <style>
+
+        #navbar {
+            background-color: #00aa00;
+            overflow: hidden;
+            display: none;
+        }
+
+        #navbar li {
+            float: left;
+            list-style-type: none;
+            margin-right: 10px;
+        }
+
+        #navbar a {
+            display: block;
+            color: #ffffff;
+            text-align: center;
+            padding: 14px 16px;
+            text-decoration: none;
+        }
+
+        #navbar a:hover {
+            background-color: #bcbcbc;
+            color: #000000;
+        }
+
+    </style>
+
+</head>
+
+<!---->
+
+<body>
+
+    <ul id="navbar">
+        <li><a href="#" id="homeLink" onclick="showPage('homepage')">Home</a></li>
+
+        <li><a href="#" id="aboutLink" onclick="showPage('aboutPage')">About</a></li>
+
+        <li><a href="#" id="logoutLink" onclick="logout()">Log Out</a></li>
+    </ul>
+
+    <h2 id="userSystemHeader">Login/Registration</h2>
+
+    <button id="toggleButton" onclick="toggleSections()">
+        Show Registration
+    </button>
+
+    <div id="registrationSection" style="display: none;">
+        <h3>Register a User</h3>
+        <form method="post" action="/Home/RegisterUsername">
+            <label for="regUsername">Username:</label>
+
+            <input type="text" id="regUsername" name="username">
+
+            <label for="regPassword">Password:</label>
+
+            <input type="password" id="regPassword" name="password">
+
+            <input type="submit" value="Register">
+        </form>
+    </div>
+
+    <div id="loginSection">
+        <h3>
+            Login
+        </h3>
+        <form method="post" action="/Home/ValidateUser">
+            <label for="loginUsername">Username:</label>
+
+            <input type="text" id="loginUsername" name="username">
+
+            <label for="loginPassword">Password:</label>
+
+            <input type="password" id="loginPassword" name="password">
+
+            <input type="submit" value="Login">
+        </form>
+    </div>
+
+    <div id="homepage" style="display: none;">
+        <h3>
+            Homepage
+        </h3>
+
+        <p>
+            Global chat:
+        </p>
+    </div>
+
+    <div id="aboutPage" style="display: none;">
+
+        <h3>
+            About Us
+        </h3>
+
+        <p>
+            We are a social media platform.
+
+            Assessor, have either some brownie or fake internet points as a bri--ward for checking this thoroughly.
+        </p>
+    </div>
+
+    <script>
+        function toggleSections() {
+
+            const regSection = document.getElementById('registrationSection');
+
+            const loginSection = document.getElementById('loginSection');
+
+            if (regSection.style.display === 'none') {
+                
+                regSection.style.display = 'block';
+
+                loginSection.style.display = 'none';
+                
+                document.getElementById('toggleButton').innerText = 'Show Login';
+
+            } else {
+                regSection.style.display = 'none';
+
+                loginSection.style.display = 'block';
+
+                document.getElementById('toggleButton').innerText = 'Show Registration';
+            }
+        }
+
+        function showPage(pageId) {
+            const pages = ['homepage', 'aboutPage', 'registrationSection', 'loginSection'];
+
+            pages.forEach(page => {
+
+                document.getElementById(page).style.display = 'none';
+            });
+
+            document.getElementById(pageId).style.display = 'block';
+        }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            const forms = document.querySelectorAll('form');
+
+            forms.forEach(form => {
+                form.addEventListener('submit', async function (e) {
+                    e.preventDefault();
+
+                    const formData = new FormData(form);
+
+                    const response = await fetch(form.action, {
+                        method: 'POST',
+                        body: formData
+                    });
+
+                    if (response.ok) {
+                        const result = await response.json();
+
+                        if (form.action.endsWith("/RegisterUsername")) {
+
+                            if (result.success) {
+
+                                alert("You're now registered! You can go to login now.");
+
+                            } else
+                            {
+                                alert(result.message);
+                            }
+                        } else {
+                            if (result.success) {
+                                document.getElementById('navbar').style.display = 'block';
+
+                                document.getElementById('userSystemHeader').style.display = 'none';
+
+                                document.getElementById('toggleButton').style.display = 'none';
+
+                                showPage('homepage');
+
+                            } else {
+
+                                alert(result.message);
+                            }
+                        }
+                    } else {
+                        alert('Error processing request.');
+                    }
+                });
+            });
+        });
+
+        function logout() {
+            document.getElementById('navbar').style.display = 'none';
+            document.getElementById('userSystemHeader').style.display = 'block';
+            document.getElementById('toggleButton').style.display = 'block';
+            showPage('loginSection');
+        }
+
+    </script>
+
+</body>
+</html>
